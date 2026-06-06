@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }} · RESEARCH BOT</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Barlow:wght@300;400;500;600;700&family=Barlow+Condensed:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        /* ========== YOUR EXISTING CSS (unchanged) ========== */
+        :root {
+            --red: #c0392b;
+            --red-bright: #e74c3c;
+            --red-dark: #922b21;
+            --silver: #bdc3c7;
+            --silver-light: #ecf0f1;
+            --dark: #111111;
+            --dark-2: #181818;
+            --dark-3: #1e1e1e;
+            --dark-4: #252525;
+            --dark-5: #2d2d2d;
+            --text: #c8c8c8;
+            --text-dim: #7f8c8d;
+            --border: rgba(255, 255, 255, 0.1);
+            --border-dim: rgba(255, 255, 255, 0.05);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: var(--dark);
+            color: var(--text);
+            font-family: 'Barlow', sans-serif;
+            font-size: 1rem;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        .bg-grid {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: linear-gradient(rgba(255,255,255,.018) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(255,255,255,.018) 1px, transparent 1px);
+            background-size: 40px 40px;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+            position: relative;
+            z-index: 1;
+        }
+        .navbar {
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 100;
+            background: transparent;
+            transition: background 0.3s, border-color 0.3s;
+            border-bottom: 1px solid transparent;
+        }
+        .navbar.scrolled {
+            background: rgba(17, 17, 17, 0.95);
+            backdrop-filter: blur(8px);
+            border-bottom-color: var(--border-dim);
+        }
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.5rem;
+        }
+        .nav-logo {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            color: var(--silver-light);
+        }
+        .nav-logo span { color: var(--red-bright); }
+        .nav-links { display: flex; gap: 2rem; }
+        .nav-link {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 600;
+            font-size: 0.875rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            transition: color 0.2s;
+        }
+        .nav-link:hover, .nav-link.active { color: var(--silver-light); }
+        .detail-hero { margin-top: 4rem; border-bottom: 1px solid var(--border-dim); }
+        .hero-image-container {
+            width: 100%;
+            max-height: 420px;
+            overflow: hidden;
+            background: var(--dark-2);
+        }
+        .detail-hero-img {
+            width: 100%;
+            height: 380px;
+            object-fit: cover;
+            object-position: top;
+        }
+        .img-placeholder {
+            height: 380px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.8rem;
+            background: var(--dark-3);
+            color: var(--text-dim);
+            font-family: 'Barlow Condensed', sans-serif;
+            letter-spacing: 0.1em;
+        }
+        .detail-container { max-width: 1000px; margin: 2rem auto 3rem; }
+        .detail-title {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: clamp(2rem, 5vw, 3rem);
+            font-weight: 700;
+            color: var(--silver-light);
+            margin-bottom: 1rem;
+        }
+        .detail-description {
+            font-size: 1.1rem;
+            color: var(--text-dim);
+            border-left: 3px solid var(--red);
+            padding-left: 1.2rem;
+            margin-bottom: 2rem;
+        }
+        .summary-card {
+            background: var(--dark-3);
+            border: 1px solid var(--border-dim);
+            padding: 1.8rem;
+            display: flex;
+            gap: 1.2rem;
+            margin-bottom: 2rem;
+            clip-path: polygon(0 0, 100% 0, 100% calc(100% - 8px), 0 100%);
+        }
+        .summary-icon i { font-size: 2rem; color: var(--red-bright); }
+        .summary-text { flex: 1; color: var(--text); line-height: 1.7; }
+        .stats-card {
+            background: var(--dark-3);
+            border: 1px solid var(--border-dim);
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+        .stats-header {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 0.9rem;
+            letter-spacing: 0.15em;
+            color: var(--red-bright);
+            margin-bottom: 1.5rem;
+        }
+        .stat-row {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+        .stat-label {
+            width: 140px;
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 0.8rem;
+            letter-spacing: 0.05em;
+            color: var(--silver);
+        }
+        .progress-bg {
+            flex: 1;
+            height: 6px;
+            background: var(--dark-5);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: var(--red-bright);
+            width: 0%;
+            transition: width 0.3s;
+        }
+        .dislike-fill { background: #b03a2e; }
+        .stat-number {
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 700;
+            color: var(--silver-light);
+            min-width: 45px;
+            text-align: right;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        .btn-like-action, .btn-dislike-action {
+            background: transparent;
+            border: 1px solid var(--border-dim);
+            padding: 0.6rem 1.4rem;
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            transition: 0.2s;
+            color: var(--text-dim);
+            clip-path: polygon(4px 0%, 100% 0%, calc(100% - 4px) 100%, 0% 100%);
+        }
+        .btn-like-action:hover {
+            border-color: var(--red-bright);
+            color: var(--red-bright);
+            background: rgba(231,76,60,0.1);
+        }
+        .btn-dislike-action:hover {
+            border-color: #b03a2e;
+            color: #e67e5e;
+        }
+        .detail-nav {
+            display: flex;
+            gap: 1.2rem;
+            justify-content: space-between;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+        footer {
+            border-top: 1px solid var(--border-dim);
+            padding: 2rem 0;
+            margin-top: 3rem;
+            background: var(--dark-2);
+        }
+        .footer-content {
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            letter-spacing: 0.05em;
+        }
+        .full-article-wrapper {
+            position: relative;
+            margin-bottom: 2rem;
+        }
+        .full-article-content {
+            background: var(--dark-3);
+            border: 1px solid var(--border-dim);
+            padding: 1.8rem;
+            clip-path: polygon(0 0, 100% 0, 100% calc(100% - 8px), 0 100%);
+            line-height: 1.7;
+        }
+        .full-article-content h2, .full-article-content h3 {
+            color: var(--silver-light);
+            margin: 1.2rem 0 0.6rem;
+            font-family: 'Rajdhani', sans-serif;
+        }
+        .full-article-content p {
+            margin-bottom: 1rem;
+        }
+        .full-article-content a {
+            color: var(--red-bright);
+            text-decoration: none;
+        }
+        .full-article-content a:hover {
+            text-decoration: underline;
+        }
+        .full-article-content img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 4px;
+        }
+        .read-more-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            background: var(--red);
+            color: white;
+            border: none;
+            padding: 0.7rem 1.8rem;
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+            transition: background 0.2s;
+            margin-top: 1rem;
+        }
+        .read-more-btn:hover {
+            background: var(--red-bright);
+        }
+        @media (max-width: 768px) {
+            .container { padding: 0 1rem; }
+            .stat-label { width: 100%; }
+            .detail-nav { flex-direction: column; align-items: stretch; }
+            .btn-primary, .btn-secondary { justify-content: center; }
+        }
+    </style>
+    <script src="/static/js/main.js" defer></script>
+</head>
+<body>
+<div class="bg-grid"></div>
+<nav class="navbar">
+    <div class="container nav-container">
+        <a href="/" class="nav-logo">RESEARCH<span>BOT</span></a>
+        <div class="nav-links">
+            <a href="/" class="nav-link">Home</a>
+            <a href="/random" class="nav-link random-nav">Random</a>
+        </div>
+    </div>
+</nav>
+
+<main>
+    {% if error %}
+    <div class="error-message" style="background: rgba(192,57,43,0.2); border-left: 3px solid var(--red-bright); padding: 0.8rem; margin: 1rem auto; max-width: 600px; text-align: center;">
+        <i class="fas fa-exclamation-triangle"></i> {{ error }}
+    </div>
+    {% endif %}
+
+    <!-- Hero Image -->
+    <div class="detail-hero">
+        <div class="hero-image-container">
+            {% if thumbnail and thumbnail.strip() %}
+            <img src="{{ thumbnail }}" alt="{{ title }}" class="detail-hero-img" onerror="this.onerror=null;this.parentElement.innerHTML='<div class=\'img-placeholder\'><i class=\'fas fa-landmark\'></i><span>  IMAGE UNAVAILABLE</span></div>';">
+            {% else %}
+            <div class="img-placeholder">
+                <i class="fas fa-scroll"></i> <span>VISUAL RECORD MISSING</span>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="detail-container container">
+        <h1 class="detail-title">{{ title | default('UNTITLED CHAPTER') }}</h1>
+        <div class="detail-description">{{ subtitle | default('A glimpse into events that shaped our civilisation.') }}</div>
+
+        <!-- Short summary card -->
+        <div class="summary-card">
+            <div class="summary-icon"><i class="fas fa-lightbulb"></i></div>
+            <div class="summary-text">{{ content | default('No detailed summary available. But every historical fragment holds meaning — continue exploring.') }}</div>
+        </div>
+
+        <!-- FULL ARTICLE lazy loading -->
+        <div class="full-article-wrapper" id="full-article-wrapper">
+            <div class="full-article-prompt" id="full-article-prompt">
+                <div class="summary-card" style="border-left: 3px solid var(--red-bright);">
+                    <div class="summary-icon"><i class="fas fa-book-open"></i></div>
+                    <div class="summary-text">
+                        <strong style="color: var(--silver-light);">Would you like to get deeper insight on {{ title }}?</strong><br>
+                        The full Wikipedia article contains detailed sections, images, and references.
+                    </div>
+                </div>
+                <div style="text-align: center; margin: 1.5rem 0 2rem;">
+                    <button class="read-more-btn" id="load-full-article-btn">
+                        <i class="fas fa-chevron-down"></i> READ MORE
+                    </button>
+                </div>
+            </div>
+            <div id="full-article-container" style="display: none;">
+                <!-- full article content will be inserted here after click -->
+            </div>
+        </div>
+
+        <!-- Stats & Engagement Section (simulated) -->
+        <div class="stats-card">
+            <div class="stats-header">
+                <i class="fas fa-chart-line"></i> COMMUNITY FEEDBACK
+            </div>
+            <div class="stats-bars">
+                <div class="stat-row">
+                    <span class="stat-label"><i class="fas fa-thumbs-up"></i> INSIGHTFUL</span>
+                    <div class="progress-bg"><div class="progress-fill" id="likes-progress-fill" style="width:0%"></div></div>
+                    <span class="stat-number" id="likes-count">0</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label"><i class="fas fa-thumbs-down"></i> NEEDS CONTEXT</span>
+                    <div class="progress-bg"><div class="progress-fill dislike-fill" id="dislikes-progress-fill" style="width:0%"></div></div>
+                    <span class="stat-number" id="dislikes-count">0</span>
+                </div>
+            </div>
+            <div class="action-buttons">
+                <button class="btn-like-action" id="like-button"><i class="fas fa-arrow-up"></i> LIKE</button>
+                <button class="btn-dislike-action" id="dislike-button"><i class="fas fa-arrow-down"></i> DISLIKE</button>
+            </div>
+            <!-- Hidden field used only for article identification (not for backend) -->
+            <input type="hidden" id="article-id-field" value="{{ document_id | default('default_article') }}">
+        </div>
+
+        <!-- Navigation row -->
+        <div class="detail-nav">
+            <a href="/" class="btn-secondary" id="back-home-btn"><i class="fas fa-home"></i> BACK HOME</a>
+            <a href="/random" class="btn-primary" id="random-detail-btn"><i class="fas fa-dice-d6"></i> SURPRISE ME</a>
+        </div>
+    </div>
+</main>
+
+<footer>
+    <div class="container footer-content">
+        <p>© 2025 RESEARCH BOT — EVERY FACT MATTERS</p>
+    </div>
+</footer>
+
+<script>
+    // -------------------------------
+    // SIMULATED LIKES / DISLIKES (no backend)
+    // -------------------------------
+    (function() {
+        // Get DOM elements
+        const likesSpan = document.getElementById('likes-count');
+        const dislikesSpan = document.getElementById('dislikes-count');
+        const likeFill = document.getElementById('likes-progress-fill');
+        const dislikeFill = document.getElementById('dislikes-progress-fill');
+        const likeBtn = document.getElementById('like-button');
+        const dislikeBtn = document.getElementById('dislike-button');
+        const articleId = document.getElementById('article-id-field')?.value || 'default';
+
+        // Generate random initial values: likes 200–1000, dislikes 0–50
+        const randomLikes = Math.floor(Math.random() * 801) + 200;   // 200..1000
+        const randomDislikes = Math.floor(Math.random() * 51);        // 0..50
+
+        let currentLikes = randomLikes;
+        let currentDislikes = randomDislikes;
+        let userVote = null;   // null, 'like', 'dislike' – stores the user's current vote for this article (session only)
+
+        // Helper: update UI (numbers and progress bars)
+        function updateUI() {
+            likesSpan.innerText = currentLikes;
+            dislikesSpan.innerText = currentDislikes;
+            const total = currentLikes + currentDislikes;
+            if (total > 0) {
+                const likePercent = (currentLikes / total) * 100;
+                const dislikePercent = (currentDislikes / total) * 100;
+                likeFill.style.width = `${likePercent}%`;
+                dislikeFill.style.width = `${dislikePercent}%`;
+            } else {
+                likeFill.style.width = '0%';
+                dislikeFill.style.width = '0%';
+            }
+        }
+
+        // Handle Like click
+        function handleLike() {
+            if (userVote === 'like') {
+                // Already liked – do nothing (no double voting)
+                return;
+            }
+            if (userVote === 'dislike') {
+                // Switching from dislike to like: +1 like, -1 dislike
+                currentLikes++;
+                currentDislikes--;
+                userVote = 'like';
+            } else {
+                // First time voting: just add a like
+                currentLikes++;
+                userVote = 'like';
+            }
+            updateUI();
+        }
+
+        // Handle Dislike click
+        function handleDislike() {
+            if (userVote === 'dislike') {
+                // Already disliked – do nothing
+                return;
+            }
+            if (userVote === 'like') {
+                // Switching from like to dislike: +1 dislike, -1 like
+                currentDislikes++;
+                currentLikes--;
+                userVote = 'dislike';
+            } else {
+                // First time voting: just add a dislike
+                currentDislikes++;
+                userVote = 'dislike';
+            }
+            updateUI();
+        }
+
+        // Attach event listeners
+        if (likeBtn) likeBtn.addEventListener('click', handleLike);
+        if (dislikeBtn) dislikeBtn.addEventListener('click', handleDislike);
+
+        // Initial UI render
+        updateUI();
+
+        // Optional: store user vote in sessionStorage per article to keep it after page reload? 
+        // For simplicity, we keep only in memory – reload resets vote. 
+        // If you want to persist within the same browsing session across reloads, add:
+        // const stored = sessionStorage.getItem(`vote_${articleId}`);
+        // if (stored) { userVote = stored; /* also adjust counts? Could be tricky because counts also change. Better to keep as in-memory only. */
+        // We'll keep it simple – each page load starts fresh.
+    })();
+</script>
+
+<script>
+    // Lazy load full article (unchanged, works with backend)
+    const loadBtn = document.getElementById('load-full-article-btn');
+    const promptDiv = document.getElementById('full-article-prompt');
+    const articleContainer = document.getElementById('full-article-container');
+
+    if (loadBtn) {
+        loadBtn.addEventListener('click', async () => {
+            const originalText = loadBtn.innerHTML;
+            loadBtn.disabled = true;
+            loadBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> LOADING...';
+            try {
+                const title = encodeURIComponent('{{ title }}');
+                const res = await fetch(`/full_article?title=${title}`);
+                if (!res.ok) throw new Error();
+                const data = await res.json();
+                const fullHtml = data.article_html;
+                articleContainer.innerHTML = `<div class="full-article-content">${fullHtml}</div>`;
+                promptDiv.style.display = 'none';
+                articleContainer.style.display = 'block';
+            } catch (err) {
+                console.error('Failed to load full article');
+                articleContainer.innerHTML = '<div class="error-message">Failed to load full article. Please try again later.</div>';
+                articleContainer.style.display = 'block';
+                promptDiv.style.display = 'none';
+            } finally {
+                loadBtn.disabled = false;
+                loadBtn.innerHTML = originalText;
+            }
+        });
+    }
+</script>
+
+<script>
+    // Your other existing interactions (navbar, random button, topic chips, back home)
+    (function() {
+        function setButtonLoading(btn, isLoading, originalHtml = null) {
+            if (!btn) return;
+            if (isLoading) {
+                btn.dataset.originalHtml = btn.innerHTML;
+                btn.disabled = true;
+                btn.style.opacity = '0.6';
+                btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> LOADING...';
+            } else {
+                btn.disabled = false;
+                btn.style.opacity = '1';
+                if (btn.dataset.originalHtml) btn.innerHTML = btn.dataset.originalHtml;
+                else if (originalHtml) btn.innerHTML = originalHtml;
+            }
+        }
+
+        const navbar = document.querySelector('.navbar');
+        if (navbar) {
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 40) navbar.classList.add('scrolled');
+                else navbar.classList.remove('scrolled');
+            });
+        }
+
+        const searchForm = document.getElementById('global-search-form');
+        const searchBtn = document.getElementById('search-submit-btn');
+        if (searchForm && searchBtn) {
+            searchForm.addEventListener('submit', function(e) {
+                const input = document.getElementById('search-input');
+                if (!input.value.trim()) {
+                    e.preventDefault();
+                    input.style.border = '1px solid var(--red-bright)';
+                    setTimeout(() => { input.style.border = ''; }, 1000);
+                    return;
+                }
+                setButtonLoading(searchBtn, true);
+            });
+        }
+
+        const randomBtns = document.querySelectorAll('#random-fact-btn, .random-nav');
+        randomBtns.forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                setButtonLoading(this, true);
+                window.location.href = this.getAttribute('href') || '/random';
+            });
+        });
+
+        const chips = document.querySelectorAll('.topic-chip');
+        const searchInput = document.getElementById('search-input');
+        if (chips.length && searchInput && searchForm) {
+            chips.forEach(chip => {
+                chip.addEventListener('click', () => {
+                    const topic = chip.getAttribute('data-topic') || chip.innerText.trim();
+                    searchInput.value = topic;
+                    if (searchBtn) setButtonLoading(searchBtn, true);
+                    searchForm.submit();
+                });
+            });
+        }
+
+        const backBtn = document.getElementById('back-home-btn');
+        if (backBtn) {
+            backBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                setButtonLoading(backBtn, true);
+                window.location.href = '/';
+            });
+        }
+    })();
+</script>
+</body>
+</html>
