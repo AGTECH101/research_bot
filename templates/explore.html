@@ -279,14 +279,35 @@
             padding: 1.8rem;
             clip-path: polygon(0 0, 100% 0, 100% calc(100% - 8px), 0 100%);
             line-height: 1.7;
-            /* Two‑column grid for wide screens: left text, right media automatically placed */
             column-count: 1;
             column-gap: 2rem;
+        }
+        .full-article-content > * + * {
+            margin-top: 1.6rem;
+        }
+        .full-article-content h2,
+        .full-article-content h3,
+        .full-article-content h4 {
+            color: var(--silver-light);
+            margin: 2rem 0 2rem;
+            padding-bottom: 0.4rem;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            font-family: 'Rajdhani', sans-serif;
+            break-after: avoid;
+        }
+        .full-article-content p,
+        .full-article-content ul,
+        .full-article-content ol,
+        .full-article-content blockquote,
+        .full-article-content pre {
+            margin-bottom: 1.4rem;
         }
         /* On large screens, use 2 columns for better readability */
         @media (min-width: 900px) {
             .full-article-content {
                 column-count: 2;
+                column-gap: 2rem;
+                column-rule: 1px solid var(--silver-light);
             }
             /* Prevent images and tables from breaking across columns */
             .full-article-content img,
