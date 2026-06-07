@@ -2,13 +2,13 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>{{ title }} · RESEARCH BOT</title>
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Barlow:wght@300;400;500;600;700&family=Barlow+Condensed:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="/static/css/style.css">
     <style>
-        /* ========== YOUR EXISTING CSS (unchanged) ========== */
+        /* ========== RESET & VARIABLES ========== */
         :root {
             --red: #c0392b;
             --red-bright: #e74c3c;
@@ -26,6 +26,7 @@
             --border-dim: rgba(255, 255, 255, 0.05);
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { height: 100%; }
         body {
             background: var(--dark);
             color: var(--text);
@@ -33,7 +34,12 @@
             font-size: 1rem;
             line-height: 1.6;
             overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
         }
+        main { flex: 1 0 auto; padding-bottom: 96px; }
+        footer { flex-shrink: 0; }
         .bg-grid {
             position: fixed;
             top: 0;
@@ -53,6 +59,7 @@
             position: relative;
             z-index: 1;
         }
+        /* ===== NAVBAR ===== */
         .navbar {
             position: fixed;
             width: 100%;
@@ -80,7 +87,7 @@
             letter-spacing: 0.05em;
             color: var(--silver-light);
         }
-        .nav-logo span, footer span { color: var(--red-bright); }
+        .nav-logo span { color: var(--red-bright); }
         .nav-links { display: flex; gap: 2rem; }
         .nav-link {
             font-family: 'Barlow Condensed', sans-serif;
@@ -92,21 +99,27 @@
             transition: color 0.2s;
         }
         .nav-link:hover, .nav-link.active { color: var(--silver-light); }
-        .detail-hero { margin-top: 4rem; border-bottom: 1px solid var(--border-dim); }
+
+        /* ===== HERO IMAGE (single, properly scaled) ===== */
+        .detail-hero { margin-top: 4rem; border-bottom: 1px solid var(--border-dim); background: var(--dark-2); }
         .hero-image-container {
             width: 100%;
-            max-height: 420px;
-            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             background: var(--dark-2);
+            padding: 1rem 0;
         }
         .detail-hero-img {
-            width: 100%;
-            height: 380px;
-            object-fit: cover;
-            object-position: top;
-        }
+    width: 100%;
+    height: auto;
+    max-height: 70vh;      /* large on PC, scales with viewport */
+    object-fit: cover;     /* ensures no distortion, crops edges if needed */
+    display: block;
+}
         .img-placeholder {
-            height: 380px;
+            height: 280px;
+            width: 100%;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -116,6 +129,8 @@
             font-family: 'Barlow Condensed', sans-serif;
             letter-spacing: 0.1em;
         }
+
+        /* ===== MAIN CONTENT ===== */
         .detail-container { max-width: 1000px; margin: 2rem auto 3rem; }
         .detail-title {
             font-family: 'Rajdhani', sans-serif;
@@ -142,6 +157,8 @@
         }
         .summary-icon i { font-size: 2rem; color: var(--red-bright); }
         .summary-text { flex: 1; color: var(--text); line-height: 1.7; }
+
+        /* Stats card (compact, no duplicate image) */
         .stats-card {
             background: var(--dark-3);
             border: 1px solid var(--border-dim);
@@ -216,6 +233,8 @@
             border-color: #b03a2e;
             color: #e67e5e;
         }
+
+        /* Navigation buttons */
         .detail-nav {
             display: flex;
             gap: 1.2rem;
@@ -223,33 +242,111 @@
             margin-top: 2rem;
             flex-wrap: wrap;
         }
-        footer {
-            border-top: 1px solid var(--border-dim);
-            padding: 2rem 0;
-            margin-top: 3rem;
-            background: var(--dark-2);
+        .btn-primary, .btn-secondary {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 700;
+            font-size: 0.85rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            padding: 0.7rem 1.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
         }
-        .footer-content {
-            text-align: center;
-            font-size: 0.75rem;
-            color: var(--text-dim);
-            letter-spacing: 0.05em;
+        .btn-primary {
+            background: var(--red);
+            color: white;
+            border: 1px solid var(--red-bright);
+            clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
         }
-        .full-article-wrapper {
-            position: relative;
-            margin-bottom: 2rem;
+        .btn-primary:hover { background: var(--red-bright); }
+        .btn-secondary {
+            background: transparent;
+            color: var(--silver);
+            border: 1px solid var(--border-dim);
+            clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
         }
+        .btn-secondary:hover { border-color: var(--red-bright); color: white; }
+
+        /* ===== FULL ARTICLE – RESPONSIVE & OPTIONAL 2‑COLUMN LAYOUT ===== */
+        .full-article-wrapper { margin-bottom: 2rem; }
         .full-article-content {
             background: var(--dark-3);
             border: 1px solid var(--border-dim);
             padding: 1.8rem;
             clip-path: polygon(0 0, 100% 0, 100% calc(100% - 8px), 0 100%);
             line-height: 1.7;
+            /* Two‑column grid for wide screens: left text, right media automatically placed */
+            column-count: 1;
+            column-gap: 2rem;
+        }
+        /* On large screens, use 2 columns for better readability */
+        @media (min-width: 900px) {
+            .full-article-content {
+                column-count: 2;
+            }
+            /* Prevent images and tables from breaking across columns */
+            .full-article-content img,
+            .full-article-content figure,
+            .full-article-content table,
+            .full-article-content .infobox,
+            .full-article-content iframe,
+            .full-article-content video,
+            .full-article-content audio,
+            .full-article-content .map {
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
+        }
+        /* Style all embedded media to be responsive */
+        .full-article-content img,
+        .full-article-content video,
+        .full-article-content iframe,
+        .full-article-content audio {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 1rem auto;
+            border-radius: 6px;
+        }
+        .full-article-content iframe {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+        }
+        .full-article-content table {
+            width: 100%;
+            overflow-x: auto;
+            display: block;
+            background: var(--dark-4);
+            border-collapse: collapse;
+        }
+        .full-article-content th, .full-article-content td {
+            border: 1px solid var(--border);
+            padding: 0.5rem;
+        }
+        .full-article-content .infobox {
+            float: right;
+            margin: 0 0 1rem 1rem;
+            max-width: 300px;
+            width: 100%;
+            background: var(--dark-4);
+            padding: 0.8rem;
+        }
+        @media (max-width: 768px) {
+            .full-article-content .infobox {
+                float: none;
+                margin: 1rem auto;
+                max-width: 100%;
+            }
         }
         .full-article-content h2, .full-article-content h3 {
             color: var(--silver-light);
             margin: 1.2rem 0 0.6rem;
             font-family: 'Rajdhani', sans-serif;
+            break-after: avoid;
         }
         .full-article-content p {
             margin-bottom: 1rem;
@@ -261,11 +358,8 @@
         .full-article-content a:hover {
             text-decoration: underline;
         }
-        .full-article-content img {
-            max-width: 100%;
-            height: auto;
-            border-radius: 4px;
-        }
+
+        /* Read More button */
         .read-more-btn {
             display: inline-flex;
             align-items: center;
@@ -282,8 +376,57 @@
             transition: background 0.2s;
             margin-top: 1rem;
         }
-        .read-more-btn:hover {
-            background: var(--red-bright);
+        .read-more-btn:hover { background: var(--red-bright); }
+
+        /* Footer */
+        footer {
+            border-top: 1px solid var(--border-dim);
+            padding: 2rem 0;
+            margin-top: 3rem;
+            background: var(--dark-2);
+        }
+        .footer-content {
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            letter-spacing: 0.05em;
+        }
+        /* FAB buttons (improved positioning) */
+        .fab-container {
+            position: fixed;
+            right: 20px;
+            bottom: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            z-index: 1200;
+        }
+        .fab {
+            width: 52px;
+            height: 52px;
+            border-radius: 999px;
+            background: var(--red);
+            color: #fff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.35);
+            cursor: pointer;
+            transition: transform 220ms cubic-bezier(.2,.9,.2,1), opacity 220ms ease, visibility 220ms ease;
+            border: none;
+            font-size: 1.2rem;
+        }
+        .fab.secondary { background: var(--dark-4); color: var(--silver-light); }
+        .fab.hidden {
+            opacity: 0;
+            transform: translateY(12px) scale(0.98);
+            visibility: hidden;
+            pointer-events: none;
+        }
+        .fab:active { transform: scale(0.98); }
+        @media (max-width: 480px) {
+            .fab-container { right: 16px; bottom: 20px; }
+            .fab { width: 48px; height: 48px; font-size: 1rem; }
         }
         @media (max-width: 768px) {
             .container { padding: 0 1rem; }
@@ -292,7 +435,6 @@
             .btn-primary, .btn-secondary { justify-content: center; }
         }
     </style>
-    <script src="/static/js/main.js" defer></script>
 </head>
 <body>
 <div class="bg-grid"></div>
@@ -313,7 +455,7 @@
     </div>
     {% endif %}
 
-    <!-- Hero Image -->
+    <!-- SINGLE HERO IMAGE (no duplication) -->
     <div class="detail-hero">
         <div class="hero-image-container">
             {% if thumbnail and thumbnail.strip() %}
@@ -336,7 +478,7 @@
             <div class="summary-text">{{ content | default('No detailed summary available. But every historical fragment holds meaning — continue exploring.') }}</div>
         </div>
 
-        <!-- FULL ARTICLE lazy loading -->
+        <!-- FULL ARTICLE lazy loading (no side panel) -->
         <div class="full-article-wrapper" id="full-article-wrapper">
             <div class="full-article-prompt" id="full-article-prompt">
                 <div class="summary-card" style="border-left: 3px solid var(--red-bright);">
@@ -352,16 +494,12 @@
                     </button>
                 </div>
             </div>
-            <div id="full-article-container" style="display: none;">
-                <!-- full article content will be inserted here after click -->
-            </div>
+            <div id="full-article-container" style="display: none;"></div>
         </div>
 
-        <!-- Stats & Engagement Section (simulated) -->
+        <!-- Stats & Engagement Section -->
         <div class="stats-card">
-            <div class="stats-header">
-                <i class="fas fa-chart-line"></i> COMMUNITY FEEDBACK
-            </div>
+            <div class="stats-header"><i class="fas fa-chart-line"></i> COMMUNITY FEEDBACK</div>
             <div class="stats-bars">
                 <div class="stat-row">
                     <span class="stat-label"><i class="fas fa-thumbs-up"></i> INSIGHTFUL</span>
@@ -378,7 +516,6 @@
                 <button class="btn-like-action" id="like-button"><i class="fas fa-arrow-up"></i> LIKE</button>
                 <button class="btn-dislike-action" id="dislike-button"><i class="fas fa-arrow-down"></i> DISLIKE</button>
             </div>
-            <!-- Hidden field used only for article identification (not for backend) -->
             <input type="hidden" id="article-id-field" value="{{ document_id | default('default_article') }}">
         </div>
 
@@ -396,104 +533,74 @@
     </div>
 </footer>
 
+<!-- FAB BUTTONS (improved auto-hide) -->
+<div class="fab-container" id="fab-container">
+    <button class="fab" id="scroll-top-fab" title="Scroll to top"><i class="fas fa-arrow-up"></i></button>
+    <button class="fab secondary" id="scroll-bottom-fab" title="Scroll to bottom"><i class="fas fa-arrow-down"></i></button>
+</div>
+
 <script>
-    // -------------------------------
-    // SIMULATED LIKES / DISLIKES (no backend)
-    // -------------------------------
+    // SIMULATED LIKES / DISLIKES (as before)
     (function() {
-        // Get DOM elements
         const likesSpan = document.getElementById('likes-count');
         const dislikesSpan = document.getElementById('dislikes-count');
         const likeFill = document.getElementById('likes-progress-fill');
         const dislikeFill = document.getElementById('dislikes-progress-fill');
         const likeBtn = document.getElementById('like-button');
         const dislikeBtn = document.getElementById('dislike-button');
-        const articleId = document.getElementById('article-id-field')?.value || 'default';
+        const randomLikes = Math.floor(Math.random() * 801) + 200;
+        const randomDislikes = Math.floor(Math.random() * 51);
+        let currentLikes = randomLikes, currentDislikes = randomDislikes;
+        let userVote = null;
 
-        // Generate random initial values: likes 200–1000, dislikes 0–50
-        const randomLikes = Math.floor(Math.random() * 801) + 200;   // 200..1000
-        const randomDislikes = Math.floor(Math.random() * 51);        // 0..50
-
-        let currentLikes = randomLikes;
-        let currentDislikes = randomDislikes;
-        let userVote = null;   // null, 'like', 'dislike' – stores the user's current vote for this article (session only)
-
-        // Helper: update UI (numbers and progress bars)
         function updateUI() {
             likesSpan.innerText = currentLikes;
             dislikesSpan.innerText = currentDislikes;
             const total = currentLikes + currentDislikes;
             if (total > 0) {
-                const likePercent = (currentLikes / total) * 100;
-                const dislikePercent = (currentDislikes / total) * 100;
-                likeFill.style.width = `${likePercent}%`;
-                dislikeFill.style.width = `${dislikePercent}%`;
+                likeFill.style.width = `${(currentLikes / total) * 100}%`;
+                dislikeFill.style.width = `${(currentDislikes / total) * 100}%`;
             } else {
                 likeFill.style.width = '0%';
                 dislikeFill.style.width = '0%';
             }
         }
-
-        // Handle Like click
         function handleLike() {
-            if (userVote === 'like') {
-                // Already liked – do nothing (no double voting)
-                return;
-            }
-            if (userVote === 'dislike') {
-                // Switching from dislike to like: +1 like, -1 dislike
-                currentLikes++;
-                currentDislikes--;
-                userVote = 'like';
-            } else {
-                // First time voting: just add a like
-                currentLikes++;
-                userVote = 'like';
-            }
+            if (userVote === 'like') return;
+            if (userVote === 'dislike') { currentLikes++; currentDislikes--; userVote = 'like'; }
+            else { currentLikes++; userVote = 'like'; }
             updateUI();
         }
-
-        // Handle Dislike click
         function handleDislike() {
-            if (userVote === 'dislike') {
-                // Already disliked – do nothing
-                return;
-            }
-            if (userVote === 'like') {
-                // Switching from like to dislike: +1 dislike, -1 like
-                currentDislikes++;
-                currentLikes--;
-                userVote = 'dislike';
-            } else {
-                // First time voting: just add a dislike
-                currentDislikes++;
-                userVote = 'dislike';
-            }
+            if (userVote === 'dislike') return;
+            if (userVote === 'like') { currentDislikes++; currentLikes--; userVote = 'dislike'; }
+            else { currentDislikes++; userVote = 'dislike'; }
             updateUI();
         }
-
-        // Attach event listeners
         if (likeBtn) likeBtn.addEventListener('click', handleLike);
         if (dislikeBtn) dislikeBtn.addEventListener('click', handleDislike);
-
-        // Initial UI render
         updateUI();
-
-        // Optional: store user vote in sessionStorage per article to keep it after page reload? 
-        // For simplicity, we keep only in memory – reload resets vote. 
-        // If you want to persist within the same browsing session across reloads, add:
-        // const stored = sessionStorage.getItem(`vote_${articleId}`);
-        // if (stored) { userVote = stored; /* also adjust counts? Could be tricky because counts also change. Better to keep as in-memory only. */
-        // We'll keep it simple – each page load starts fresh.
     })();
-</script>
 
-<script>
-    // Lazy load full article (unchanged, works with backend)
+    // FAB AUTO-HIDE & SCROLL
+    (function(){
+        const topBtn = document.getElementById('scroll-top-fab');
+        const bottomBtn = document.getElementById('scroll-bottom-fab');
+        const fabs = document.querySelectorAll('.fab');
+        let hideTimer;
+        function showFabs() { fabs.forEach(f => f.classList.remove('hidden')); resetHideTimer(); }
+        function hideFabs() { fabs.forEach(f => f.classList.add('hidden')); }
+        function resetHideTimer() { if (hideTimer) clearTimeout(hideTimer); hideTimer = setTimeout(() => hideFabs(), 5000); }
+        ['scroll','mousemove','touchstart','keydown'].forEach(evt => window.addEventListener(evt, () => showFabs(), { passive: true }));
+        if (topBtn) topBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+        if (bottomBtn) bottomBtn.addEventListener('click', () => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' }));
+        setTimeout(() => showFabs(), 500);
+    })();
+
+    // LAZY LOAD FULL ARTICLE
     const loadBtn = document.getElementById('load-full-article-btn');
     const promptDiv = document.getElementById('full-article-prompt');
     const articleContainer = document.getElementById('full-article-container');
-
     if (loadBtn) {
         loadBtn.addEventListener('click', async () => {
             const originalText = loadBtn.innerHTML;
@@ -504,12 +611,11 @@
                 const res = await fetch(`/full_article?title=${title}`);
                 if (!res.ok) throw new Error();
                 const data = await res.json();
-                const fullHtml = data.article_html;
-                articleContainer.innerHTML = `<div class="full-article-content">${fullHtml}</div>`;
+                articleContainer.innerHTML = `<div class="full-article-content">${data.article_html}</div>`;
                 promptDiv.style.display = 'none';
                 articleContainer.style.display = 'block';
+                articleContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
             } catch (err) {
-                console.error('Failed to load full article');
                 articleContainer.innerHTML = '<div class="error-message">Failed to load full article. Please try again later.</div>';
                 articleContainer.style.display = 'block';
                 promptDiv.style.display = 'none';
@@ -519,10 +625,8 @@
             }
         });
     }
-</script>
 
-<script>
-    // Your other existing interactions (navbar, random button, topic chips, back home)
+    // NAVBAR SCROLL & OTHER INTERACTIONS (unchanged)
     (function() {
         function setButtonLoading(btn, isLoading, originalHtml = null) {
             if (!btn) return;
@@ -538,60 +642,39 @@
                 else if (originalHtml) btn.innerHTML = originalHtml;
             }
         }
-
         const navbar = document.querySelector('.navbar');
-        if (navbar) {
-            window.addEventListener('scroll', () => {
-                if (window.scrollY > 40) navbar.classList.add('scrolled');
-                else navbar.classList.remove('scrolled');
-            });
-        }
-
+        if (navbar) window.addEventListener('scroll', () => navbar.classList.toggle('scrolled', window.scrollY > 40));
         const searchForm = document.getElementById('global-search-form');
         const searchBtn = document.getElementById('search-submit-btn');
-        if (searchForm && searchBtn) {
-            searchForm.addEventListener('submit', function(e) {
-                const input = document.getElementById('search-input');
-                if (!input.value.trim()) {
-                    e.preventDefault();
-                    input.style.border = '1px solid var(--red-bright)';
-                    setTimeout(() => { input.style.border = ''; }, 1000);
-                    return;
-                }
-                setButtonLoading(searchBtn, true);
-            });
-        }
-
-        const randomBtns = document.querySelectorAll('#random-fact-btn, .random-nav');
-        randomBtns.forEach(btn => {
-            btn.addEventListener('click', function(e) {
+        if (searchForm && searchBtn) searchForm.addEventListener('submit', function(e) {
+            const input = document.getElementById('search-input');
+            if (!input.value.trim()) {
                 e.preventDefault();
-                setButtonLoading(this, true);
-                window.location.href = this.getAttribute('href') || '/random';
-            });
+                input.style.border = '1px solid var(--red-bright)';
+                setTimeout(() => input.style.border = '', 1000);
+                return;
+            }
+            setButtonLoading(searchBtn, true);
         });
-
+        const randomBtns = document.querySelectorAll('#random-fact-btn, .random-nav');
+        randomBtns.forEach(btn => btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            setButtonLoading(this, true);
+            window.location.href = this.getAttribute('href') || '/random';
+        }));
         const chips = document.querySelectorAll('.topic-chip');
         const searchInput = document.getElementById('search-input');
-        if (chips.length && searchInput && searchForm) {
-            chips.forEach(chip => {
-                chip.addEventListener('click', () => {
-                    const topic = chip.getAttribute('data-topic') || chip.innerText.trim();
-                    searchInput.value = topic;
-                    if (searchBtn) setButtonLoading(searchBtn, true);
-                    searchForm.submit();
-                });
-            });
-        }
-
+        if (chips.length && searchInput && searchForm) chips.forEach(chip => chip.addEventListener('click', () => {
+            searchInput.value = chip.getAttribute('data-topic') || chip.innerText.trim();
+            if (searchBtn) setButtonLoading(searchBtn, true);
+            searchForm.submit();
+        }));
         const backBtn = document.getElementById('back-home-btn');
-        if (backBtn) {
-            backBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                setButtonLoading(backBtn, true);
-                window.location.href = '/';
-            });
-        }
+        if (backBtn) backBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            setButtonLoading(backBtn, true);
+            window.location.href = '/';
+        });
     })();
 </script>
 </body>
