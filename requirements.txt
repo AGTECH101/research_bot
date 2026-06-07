@@ -2,4 +2,6 @@ fastapi
 uvicorn[standard]
 requests
 python-dotenv
+python-multipart
 gunicorn
+jinja2 
